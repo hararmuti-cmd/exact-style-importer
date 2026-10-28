@@ -43,36 +43,17 @@ type Store = {
   removeTutanak: (id: string) => void;
   addAttendance: (a: Omit<AttendanceRow, "id">) => void;
   removeAttendance: (id: string) => void;
+  updateTutanak: (id: string, t: Partial<Tutanak>) => void;
+  saveDay: (date: string, rows: Omit<AttendanceRow, "id" | "date">[]) => void;
+  resetAll: () => void;
+  importAll: (s: State) => void;
 };
 
 const uid = () => Math.random().toString(36).slice(2, 10);
 
-const seedStudents: Student[] = [
-  { id: "s1", name: "Ff", age: "23", group: "Daimi Grup", city: "Tamam", startDate: "2026-10-18", guardian: "Df", phone: "7044245", status: "İyi" },
-  { id: "s2", name: "Hdh", age: "21", group: "Daimi Grup", city: "Tamam", startDate: "2026-10-18", guardian: "", phone: "", status: "Orta" },
-];
+const KEY = "kuran-kursu-store-v2";
 
-const seedTutanaklar: Tutanak[] = [
-  {
-    id: "t1", studentId: "s1", title: "Namaza Katılmama", tag: "Namaza Katılmama", date: "2026-10-23", positive: false, signed: false,
-    body: "TUTANAK: 24.05.2024 tarihinde kursumuzda yapılan gözlemlerde, öğrencimiz [Öğrenci Adı Soyadı]'nın diğer kursiyerlerle sık sık tartışma yaşadığı ve disiplinsiz davranışlar sergilediği tespit edilmiştir. Kurs disiplinini ve huzurunu korumak adına, ilgili öğrencinin söz konusu tutumlarını düzeltmesi hususunda uyarılmasına ve velisinin durum hakkında bilgilendirilmesine karar verilmiştir.",
-  },
-  {
-    id: "t2", studentId: "s1", title: "Anamdan hata yapmışım", tag: "Derse Geç Kalma", date: "2026-10-18", positive: false, signed: true,
-    body: "Yapılan gözlemler neticesinde; bazı öğrencilerin eğitim-öğretim süreci içerisinde arkadaşlarıyla uyumsuz davranışlar sergilediği görülmüştür.",
-  },
-];
-
-const seedAttendance: AttendanceRow[] = [
-  { id: "a1", studentId: "s1", date: "2026-10-21", vakitler: [], ders: false, durum: "izinli" },
-  { id: "a2", studentId: "s1", date: "2026-10-21", vakitler: ["Sabah", "Öğle", "İkindi"], ders: true, durum: "normal" },
-  { id: "a3", studentId: "s1", date: "2026-10-22", vakitler: ["Sabah", "Öğle", "İkindi", "Akşam", "Yatsı"], ders: true, durum: "normal" },
-  { id: "a4", studentId: "s1", date: "2026-10-23", vakitler: ["Akşam", "Yatsı"], ders: false, durum: "normal" },
-];
-
-const KEY = "kuran-kursu-store-v1";
-
-type State = { students: Student[]; tutanaklar: Tutanak[]; attendance: AttendanceRow[] };
+export type State = { students: Student[]; tutanaklar: Tutanak[]; attendance: AttendanceRow[] };
 
 function load(): State {
   try {
@@ -81,7 +62,7 @@ function load(): State {
   } catch {
     /* ignore */
   }
-  return { students: seedStudents, tutanaklar: seedTutanaklar, attendance: seedAttendance };
+  return { students: [], tutanaklar: [], attendance: [] };
 }
 
 const StoreContext = createContext<Store | null>(null);
@@ -113,6 +94,20 @@ export function StoreProvider({ children }: { children: ReactNode }) {
     removeTutanak: (id) => setState((p) => ({ ...p, tutanaklar: p.tutanaklar.filter((x) => x.id !== id) })),
     addAttendance: (a) => setState((p) => ({ ...p, attendance: [...p.attendance, { ...a, id: uid() }] })),
     removeAttendance: (id) => setState((p) => ({ ...p, attendance: p.attendance.filter((x) => x.id !== id) })),
+    updateTutanak: (id, t) => setState((p) => ({ ...p, tutanaklar: p.tutanaklar.map((x) => (x.id === id ? { ...x, ...t } : x)) })),
+    saveDay: (date, rows) =>
+      setState((p) => {
+        const ids = new Set(rows.map((r) => r.studentId));
+        return {
+          ...p,
+          attendance: [
+            ...p.attendance.filter((x) => !(x.date === date && ids.has(x.studentId))),
+            ...rows.map((r) => ({ ...r, date, id: uid() })),
+          ],
+        };
+      }),
+    resetAll: () => setState({ students: [], tutanaklar: [], attendance: [] }),
+    importAll: (s) => setState({ students: s.students ?? [], tutanaklar: s.tutanaklar ?? [], attendance: s.attendance ?? [] }),
   };
 
   return <StoreContext.Provider value={store}>{children}</StoreContext.Provider>;
