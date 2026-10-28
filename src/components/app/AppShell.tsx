@@ -1,4 +1,4 @@
-import { Link, useLocation } from "@tanstack/react-router";
+import { LiquidTabBar } from "./LiquidTabBar";
 import { BookOpen, Users, CalendarCheck, FileText, Menu } from "lucide-react";
 import type { ReactNode } from "react";
 
@@ -23,7 +23,6 @@ function Mosque() {
 }
 
 export function AppShell({ children }: { children: ReactNode }) {
-  const { pathname } = useLocation();
   return (
     <div className="mx-auto min-h-screen max-w-md bg-background pb-32 font-sans text-foreground">
       <header className="relative overflow-hidden rounded-b-[2rem] bg-primary px-4 pb-6 pt-12 shadow-md">
@@ -39,19 +38,8 @@ export function AppShell({ children }: { children: ReactNode }) {
         </div>
       </header>
       <main className="px-4">{children}</main>
-      <nav className="fixed inset-x-0 bottom-4 z-20 mx-auto max-w-md px-4">
-        <div className="grid grid-cols-4 gap-1 rounded-3xl border border-border bg-card p-1.5 shadow-lg">
-          {tabs.map(({ to, label, icon: Icon }) => {
-            const active = pathname === to;
-            return (
-              <Link key={to} to={to} className={`flex flex-col items-center gap-1 rounded-3xl py-2 text-xs ${active ? "border border-primary/20 bg-brand-soft text-primary" : "text-muted-foreground"}`}>
-                <Icon className="h-5 w-5" />
-                {label}
-              </Link>
-            );
-          })}
-        </div>
-      </nav>
+      <LiquidTabBar tabs={tabs} />
+
     </div>
   );
 }
