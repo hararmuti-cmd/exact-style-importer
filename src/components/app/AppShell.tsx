@@ -44,10 +44,6 @@ export function AppShell({ children }: { children: ReactNode }) {
   );
 }
 
-export const students = [
-  { name: "Ff", status: "İyi" as const },
-  { name: "Hdh", status: "Orta" as const },
-];
 
 export function Avatar({ name, size = "lg" }: { name: string; size?: "lg" | "sm" }) {
   return (
