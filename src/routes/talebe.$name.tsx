@@ -99,12 +99,14 @@ function TutanakForm({ onSubmit }: { onSubmit: (t: Omit<Tutanak, "id" | "student
 }
 
 function TalebeDetay() {
-  const { name: id } = Route.useParams();
+  const { name: raw } = Route.useParams();
   const store = useStore();
   const navigate = useNavigate();
   const [tab, setTab] = useState<(typeof tabs)[number]>("Yoklama");
   const [sheet, setSheet] = useState<null | "edit" | "yoklama" | "tutanak">(null);
-  const student = store.students.find((s) => s.id === id);
+  const found = store.students.find((s) => s.id === raw) ?? store.students.find((s) => s.name === decodeURIComponent(raw));
+  const student = found;
+  const id = found?.id ?? raw;
 
   if (!student) {
     return (
