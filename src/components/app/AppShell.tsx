@@ -23,7 +23,6 @@ function Mosque() {
 }
 
 export function AppShell({ children }: { children: ReactNode }) {
-  const { pathname } = useLocation();
   return (
     <div className="mx-auto min-h-screen max-w-md bg-background pb-32 font-sans text-foreground">
       <header className="relative overflow-hidden rounded-b-[2rem] bg-primary px-4 pb-6 pt-12 shadow-md">
