@@ -61,7 +61,8 @@ export function LiquidTabBar({ tabs }: { tabs: readonly Tab[] }) {
       const idx = Math.round(drag / tabW);
       setDir(idx >= activeIndex ? 1 : -1);
       setDrag(null);
-      if (idx !== activeIndex) navigate({ to: tabs[idx].to });
+      const target = tabs[idx];
+      if (target && idx !== activeIndex) navigate({ to: target.to });
       setTimeout(() => (suppressClick.current = false), 50);
     }
   };
